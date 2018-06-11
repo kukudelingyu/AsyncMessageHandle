@@ -17,7 +17,7 @@ public class Logger {
     private static boolean debug = true;
 
 
-    private String getMessage(Object object){
+    private static String getMessage(Object object){
 
         return object.toString()==null? "null":object.toString();
     }
@@ -26,7 +26,7 @@ public class Logger {
      * 打印debug级别的日志
      * @param object
      */
-    public void D (Object object){
+    public static void D (Object object){
 
         Log.d(TAG,getMessage(object));
     }
@@ -34,7 +34,7 @@ public class Logger {
      * 打印info级别的日志
      * @param object
      */
-    public void I (Object object){
+    public static void I (Object object){
 
         Log.i(TAG,getMessage(object));
     }
@@ -42,7 +42,7 @@ public class Logger {
      * 打印warn级别的日志
      * @param object
      */
-    public void W (Object object){
+    public static void W (Object object){
 
         Log.w(TAG,getMessage(object));
     }
@@ -51,7 +51,7 @@ public class Logger {
      * 打印error级别的日志
      * @param object
      */
-    public void E (Object object){
+    public static void E (Object object){
 
         Log.e(TAG,getMessage(object));
 
@@ -60,7 +60,7 @@ public class Logger {
      * 打印wtf级别的日志
      * @param object
      */
-    public void wtf (Object object){
+    public static void wtf (Object object){
 
         Log.wtf(TAG,getMessage(object));
 
