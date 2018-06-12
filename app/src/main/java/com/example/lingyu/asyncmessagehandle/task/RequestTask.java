@@ -4,6 +4,7 @@ import com.example.lingyu.asyncmessagehandle.urlconnection.UrlConnectionFactory;
 import com.example.lingyu.asyncmessagehandle.utils.Logger;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -27,10 +28,16 @@ public class RequestTask implements Runnable{
 
     @Override
     public void run() {
-        Logger.wtf("开始执行任务,请求体为："+request.toString());
+        //异常
         Exception exception = null;
+        //响应码
         int responseCode = 200;
+        //请求的方法
+        RequestMethod method = request.getMethod();
+        //http连接
         HttpURLConnection httpURLConnection =null;
+        //数据的输出流
+        OutputStream outputStream = null;
 
         // 1.建立连接
         try {
@@ -46,8 +53,19 @@ public class RequestTask implements Runnable{
                 connection.setHostnameVerifier(request.getVerifier());
 
             }
+            //1.1 设置请求头以及相关信息
+            httpURLConnection.setRequestMethod(method.getMethod());
+            httpURLConnection.setDoInput(true);
+            httpURLConnection.setDoOutput(method.isOutputMethod());
+
 
         // 2.发送数据 TODO ...
+            //如果是POST DELETE方法才能获取输出流
+            if(method.isOutputMethod()){
+                outputStream = httpURLConnection.getOutputStream();
+            }else{
+                throw new IllegalArgumentException(method.getMethod() +"is not get outputstrean");
+            }
 
         // 3.读取响应 TODO ...
 
