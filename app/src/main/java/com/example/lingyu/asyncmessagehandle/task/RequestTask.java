@@ -27,6 +27,7 @@ public class RequestTask implements Runnable{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         Logger.wtf("任务执行完毕");
 
         Response response = new Response(200,"执行成功",null,request);
