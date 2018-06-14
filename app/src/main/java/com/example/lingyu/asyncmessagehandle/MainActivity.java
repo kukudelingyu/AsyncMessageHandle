@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import com.example.lingyu.asyncmessagehandle.http.FileBinary;
+import com.example.lingyu.asyncmessagehandle.http.callback.OnProgressCallback;
 import com.example.lingyu.asyncmessagehandle.http.callback.ResultCallback;
 import com.example.lingyu.asyncmessagehandle.http.RequestExecutor;
 import com.example.lingyu.asyncmessagehandle.http.request.RequestMethod;
@@ -23,12 +24,22 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        OnProgressCallback mCallback = new OnProgressCallback() {
+            @Override
+            public void showProgress(int what, int progress) {
+
+                //Logger.E("what:"+what +"==="+"progress:" + progress);
+            }
+        };
         String path = Environment.getExternalStorageDirectory().getAbsolutePath();
 
-        File file1 = new File(path+"/tencent/MicroMsg/WeiXin/mmexport1504517025936.jpg");
+        File file1 = new File(path+"/Pictures/1522676262470.jpg");
 
         final StringRequest request = new StringRequest(Constants.url, RequestMethod.POST);
-        request.add("imageFile",new FileBinary(file1));
+        //设置文件参数
+        FileBinary binary = new FileBinary(file1);
+        binary.setOnProgressCallback(mCallback,1);
+        request.add("imageFile",binary);
 
         findViewById(R.id.btn_request).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -47,5 +58,8 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
+
+
+
     }
 }
