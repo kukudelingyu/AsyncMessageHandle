@@ -6,8 +6,10 @@ import android.view.View;
 
 import com.example.lingyu.asyncmessagehandle.task.Request;
 import com.example.lingyu.asyncmessagehandle.task.RequestExecutor;
+import com.example.lingyu.asyncmessagehandle.task.RequestMethod;
 import com.example.lingyu.asyncmessagehandle.task.Response;
 import com.example.lingyu.asyncmessagehandle.task.ResultCallback;
+import com.example.lingyu.asyncmessagehandle.utils.Constants;
 import com.example.lingyu.asyncmessagehandle.utils.Logger;
 
 public class MainActivity extends AppCompatActivity {
@@ -17,9 +19,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final Request request = new Request("http://www.baidu.com");
-        request.add("uername","zhangsan");
-        request.add("password","123456");
+        final Request request = new Request(Constants.url, RequestMethod.GET);
+
+
 
         findViewById(R.id.btn_request).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -27,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
                 RequestExecutor.INSTANCE.execute(request, new ResultCallback() {
                     @Override
                     public void onSucceed(Response response) {
-                        Logger.wtf("执行结果为："+response.getResult());
+                        Logger.I("执行结果为："+ new String(response.getResult()) );
                     }
 
                     @Override

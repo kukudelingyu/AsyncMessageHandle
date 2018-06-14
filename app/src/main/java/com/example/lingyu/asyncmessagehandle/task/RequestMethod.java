@@ -17,8 +17,24 @@ public enum  RequestMethod {
         this.method = method;
     }
 
+    public String getMethod(){
+        return this.method;
+    }
+
     @Override
     public String toString() {
         return method;
+    }
+
+    public boolean isOutputMethod() {
+        switch (this){
+            case POST:
+            case DELETE:
+                return true;
+            default:
+                return false;
+
+        }
+
     }
 }

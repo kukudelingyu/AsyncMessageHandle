@@ -22,10 +22,14 @@ public class Response {
      * 请求体
      */
     private Request request;
+    /**
+     * 响应包体
+     */
+    private byte[] responseBody;
 
-    public Response(int responseCode, String result, Exception exception, Request request) {
+    public Response(int responseCode, byte[] responseBody, Exception exception, Request request) {
         this.responseCode = responseCode;
-        this.result = result;
+        this.responseBody = responseBody;
         this.exception = exception;
         this.request = request;
     }
@@ -34,8 +38,8 @@ public class Response {
         return responseCode;
     }
 
-    public String getResult() {
-        return result;
+    public byte[] getResult() {
+        return responseBody;
     }
 
     public Exception getException() {
