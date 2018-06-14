@@ -1,11 +1,13 @@
-package com.example.lingyu.asyncmessagehandle.task;
+package com.example.lingyu.asyncmessagehandle.http;
+
+import com.example.lingyu.asyncmessagehandle.http.request.Request;
 
 /**
  * Created by duanlingyu on 2018/6/11.
  * 相应体
  */
 
-public class Response {
+public class Response<T> {
     /**
      * 响应码
      */
@@ -25,11 +27,10 @@ public class Response {
     /**
      * 响应包体
      */
-    private byte[] responseBody;
+    private T responseBody;
 
-    public Response(int responseCode, byte[] responseBody, Exception exception, Request request) {
+    public Response(int responseCode, Exception exception, Request request) {
         this.responseCode = responseCode;
-        this.responseBody = responseBody;
         this.exception = exception;
         this.request = request;
     }
@@ -38,8 +39,16 @@ public class Response {
         return responseCode;
     }
 
-    public byte[] getResult() {
+    /**
+     * 返回响应包体
+     * @return
+     */
+    public T getResult() {
         return responseBody;
+    }
+
+    public void setResult(T responseBody){
+        this.responseBody = responseBody;
     }
 
     public Exception getException() {

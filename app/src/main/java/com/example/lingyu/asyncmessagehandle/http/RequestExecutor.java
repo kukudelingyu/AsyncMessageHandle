@@ -1,4 +1,7 @@
-package com.example.lingyu.asyncmessagehandle.task;
+package com.example.lingyu.asyncmessagehandle.http;
+
+import com.example.lingyu.asyncmessagehandle.http.callback.ResultCallback;
+import com.example.lingyu.asyncmessagehandle.http.request.Request;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +22,7 @@ public enum  RequestExecutor {
         service = Executors.newSingleThreadExecutor();
     }
 
-    public void execute(Request request,ResultCallback callback){
+    public void execute(Request request, ResultCallback callback){
 
         service.execute(new RequestTask(request,callback));
     }

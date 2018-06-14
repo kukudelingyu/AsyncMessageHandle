@@ -1,8 +1,9 @@
-package com.example.lingyu.asyncmessagehandle.task;
+package com.example.lingyu.asyncmessagehandle.http.request;
 
 import android.text.TextUtils;
 import android.webkit.MimeTypeMap;
 
+import com.example.lingyu.asyncmessagehandle.http.Binary;
 import com.example.lingyu.asyncmessagehandle.utils.CounterOutputStream;
 import com.example.lingyu.asyncmessagehandle.utils.Logger;
 
@@ -26,7 +27,7 @@ import javax.net.ssl.SSLSocketFactory;
  * 请求体
  */
 
-public class Request {
+public abstract class Request<T> {
     /**
      * 请求头中的分隔符
      */
@@ -73,6 +74,8 @@ public class Request {
      */
     private boolean isFormData = false;
 
+    private int connectionTimeOut = 30 * 1000;
+
 
     public Request(String url) {
         this(url,RequestMethod.GET);
@@ -104,17 +107,25 @@ public class Request {
 
     }
 
-    public void add(String key,File value){
+    public void add(String key,Binary value){
 
         paramList.add(new Params(key,value));
 
+    }
+
+    public int getConnectionTimeOut() {
+        return connectionTimeOut;
+    }
+
+    public void setConnectionTimeOut(int connectionTimeOut) {
+        this.connectionTimeOut = connectionTimeOut;
     }
 
     /**
      * 获取请求头
      * @return
      */
-    Map<String, String> getmRequestHeader() {
+     public Map<String, String> getmRequestHeader() {
 
         return mRequestHeader;
     }
@@ -135,9 +146,9 @@ public class Request {
      */
     public String getUrl() throws IOException{
         StringBuilder builder = new StringBuilder(url);
-        String parmas = buildParams();
 
         if(!method.isOutputMethod()){
+            String parmas = buildParams();
             if(parmas.length()>0 && url.contains("?") && url.contains("=")){
                 // http://www.baidu.com?name="zhangsan"
                 builder.append("&");
@@ -202,9 +213,7 @@ public class Request {
      * @return
      */
     public String getContentType() {
-        if(TextUtils.isEmpty(contentType)){
-            return "application/x-www-form-urlencoded";
-        }else if(isFormData || hasFile()){         //是否是表单提交或者参数是文件（只能通过表单或者body来提交）
+        if(isFormData || hasFile()){         //是否是表单提交或者参数是文件（只能通过表单或者body来提交）
             //表单提交的特殊ContentType
             // ContentType:multipart/form-data boundary=dfdsafkdsjlkfs
             // 表单中的String item==========
@@ -258,7 +267,9 @@ public class Request {
      */
     private void writeStringData(OutputStream outputStream) throws IOException{
         String params = buildParams();
-        Logger.I("writeStringData" + params);
+        if(! (outputStream instanceof CounterOutputStream)){
+            Logger.I("RequestBody: " + params);
+        }
         outputStream.write(params.getBytes());
     }
 
@@ -268,8 +279,8 @@ public class Request {
      */
     private void writeFormData(OutputStream outputStream) throws IOException{
         for (Params params : paramList) {
-            if(params.getValue() instanceof File){
-                writeFileFormData(outputStream,params.getKey(),(File)params.getValue());
+            if(params.getValue() instanceof Binary){
+                writeFileFormData(outputStream,params.getKey(),(Binary)params.getValue());
             }else{
                 writeStringFormData(outputStream,params.getKey(),(String)params.getValue());
             }
@@ -284,33 +295,25 @@ public class Request {
      * @param key
      * @param value
      */
-    private void writeFileFormData(OutputStream outputStream,String key,File value)throws IOException{
+    private void writeFileFormData(OutputStream outputStream,String key,Binary value)throws IOException{
         // --boundary
         // Content-Disposition: form-data; name="keyName"; fileName="abc.jpg"       //相当于key=value中的key
         // Content-Type: image/jpeg;
         //
         // file 的数据...
         StringBuilder builder = new StringBuilder();
-        String mimeType = "application/octet-stream";
-        if(MimeTypeMap.getSingleton().hasExtension(value.getName())){
-            mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(value.getName());
-        }
-        builder.append(startBoundry).append("\r\n");
-        builder.append("Content-Disposition: form-data; name ="+key).append("; fileName"+value.getName()).append("\r\n");
-        builder.append("Content-Type:"+mimeType).append("\r\n");
-        builder.append("\r\n");
-        outputStream.write(builder.toString().getBytes(charset));
 
+        builder.append(startBoundry).append("\r\n");
+        builder.append("Content-Disposition: form-data; name ="+key).append("; fileName="+value.getFileNmae()).append("\r\n");
+        builder.append("Content-Type: image/jpg").append("\r\n");
+        builder.append("\r\n");
+        outputStream.write(builder.toString().getBytes());
+        Logger.I("FileItem"+builder.toString());
         if(outputStream instanceof CounterOutputStream){
             //如果是统计长度的，直接将长度写进流中即可
-            ((CounterOutputStream) outputStream).write(value.length());
+            ((CounterOutputStream) outputStream).write(value.getBinaryLength());
         }else{
-            InputStream stream = new FileInputStream(value);
-            byte[] buffer = new byte[1024];
-            int len;
-            while ((len = stream.read(buffer)) != -1){
-                outputStream.write(buffer,0,len);
-            }
+           value.onWriteBinary(outputStream);
         }
     }
 
@@ -332,7 +335,7 @@ public class Request {
         builder.append("Content-Type: text/plain; charset:"+ charset).append("\r\n");
         builder.append("\r\n");
         builder.append(value);
-        Logger.I("writeStringFormData :"+builder.toString());
+        Logger.I("RequestBody: "+builder.toString());
         outputStream.write(builder.toString().getBytes(charset));
 
     }
@@ -344,7 +347,7 @@ public class Request {
      */
     protected boolean hasFile(){
         for (Params params : paramList) {
-            if(params.getValue() instanceof File){
+            if(params.getValue() instanceof Binary){
                 return true;
             }
         }
@@ -373,6 +376,11 @@ public class Request {
         }
     }
 
+    /**
+     * 构建参数
+     * @return
+     * @throws IOException
+     */
     String buildParams() throws IOException{
         if(paramList.size() > 0 ){
             StringBuilder builder = new StringBuilder("&");
@@ -383,12 +391,16 @@ public class Request {
                         .append(URLEncoder.encode((String)params.getValue(),charset));
             }
             builder.deleteCharAt(0);
-            Logger.I("buildeParams"+builder.toString());
+
             return builder.toString();
         }else{
             return "";
         }
     }
+
+    public abstract T parseResponse(byte[] responseBody);
+
+
 
     @Override
     public String toString() {

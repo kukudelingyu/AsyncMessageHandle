@@ -5,6 +5,6 @@ package com.example.lingyu.asyncmessagehandle.utils;
  */
 
 public class Constants {
-    public static final String url = "http://www.wanandroid.com//hotkey/json";
+    public static final String url = "http://47.95.215.141:8080/dsService/imageAction/uploadImg.htm";
 
 }

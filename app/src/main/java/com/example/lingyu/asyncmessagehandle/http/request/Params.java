@@ -1,4 +1,6 @@
-package com.example.lingyu.asyncmessagehandle.task;
+package com.example.lingyu.asyncmessagehandle.http.request;
+
+import com.example.lingyu.asyncmessagehandle.http.Binary;
 
 import java.io.File;
 
@@ -18,7 +20,7 @@ public class Params {
         this.value = value;
     }
 
-    public Params(String key, File value) {
+    public Params(String key, Binary value) {
         this.key = key;
         this.value = value;
     }

@@ -1,4 +1,4 @@
-package com.example.lingyu.asyncmessagehandle.urlconnection;
+package com.example.lingyu.asyncmessagehandle.http.urlconnection;
 
 import java.net.HttpURLConnection;
 import java.net.Proxy;

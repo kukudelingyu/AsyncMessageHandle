@@ -1,4 +1,6 @@
-package com.example.lingyu.asyncmessagehandle.task;
+package com.example.lingyu.asyncmessagehandle.http;
+
+import com.example.lingyu.asyncmessagehandle.http.callback.ResultCallback;
 
 /**
  * Created by duanlingyu on 2018/6/11.
